@@ -22,7 +22,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run: |
-          echo "Running tests..."
+          echo "Running tests"
           npm run test
 
 workflows:
@@ -30,5 +30,5 @@ workflows:
     jobs:
       - build
       - test:
-        requires:
-          - build
+          requires:
+            - build

@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.0.1
+  docker: circleci/docker@2.1.4
 
 jobs:
   build:
@@ -24,6 +25,16 @@ jobs:
       - run: |
           echo "Running tests"
           npm run test
+  publish:
+    executor: docker/docker
+    steps:
+      - setup_remote_docker
+      - checkout
+      - docker/check
+      - docker/build:
+          image: dmaluu/education-space
+      - docker/push:
+          image: dmaluu/education-space
 
 workflows:
   simple_workflow:
@@ -32,3 +43,6 @@ workflows:
       - test:
           requires:
             - build
+      - publish:
+          requires:
+            - test

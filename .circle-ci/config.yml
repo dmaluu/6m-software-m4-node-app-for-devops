@@ -40,6 +40,16 @@ jobs:
             heroku stack:set container -a dmaluu-devops
             heroku container:push web -a dmaluu-devops
             heroku container:release web -a dmaluu-devops
+  publish:
+    executor: docker/docker
+    steps:
+      - setup_remote_docker
+      - checkout
+      - docker/check
+      - docker/build:
+          image: dmaluu/education-space
+      - docker/push:
+          image: dmaluu/education-space
 
 workflows:
   simple_workflow:

@@ -40,29 +40,45 @@ jobs:
             heroku stack:set container -a dmaluu-devops
             heroku container:push web -a dmaluu-devops
             heroku container:release web -a dmaluu-devops
-  scan:
-    docker:
-      - image: cimg/node:16.10
-    environment:
-      IMAGE_NAME: dmaluu/education-space
+  publish:
+    executor: docker/docker
     steps:
-      - checkout
       - setup_remote_docker
+      - checkout
       - docker/check
-      - run: docker build -t $IMAGE_NAME .
-      - snyk/scan:
-          docker-image-name: $IMAGE_NAME
+      - docker/build:
+          image: dmaluu/education-space
+      - docker/push:
+          image: dmaluu/education-space
 
 workflows:
   simple_workflow:
     jobs:
-      - build
-      # - deploy:
-      #     requires:
-      #       - test
-      - scan:
-          requires:
-            - build
+      - build:
+          filters:
+            branches:
+              only:
+                - main
+                - release
       - test:
           requires:
-            - scan
+            - build
+          filters:
+            branches:
+              only:
+                - main
+                - release
+      - publish:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - release
+      - deploy:
+          requires:
+            - publish
+          filters:
+            branches:
+              only:
+                - release
